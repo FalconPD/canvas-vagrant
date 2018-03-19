@@ -1,0 +1,4 @@
+config/secrets.json
+.vagrant/*
+packages/*
+*.swp
