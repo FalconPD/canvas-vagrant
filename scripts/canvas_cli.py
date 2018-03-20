@@ -9,9 +9,10 @@ pp = pprint.PrettyPrinter(indent=4)
 
 @click.group()
 @click.argument("secrets_file", type=click.File("r"), metavar="SECRETS")
-@click.option("--account", type=click.INT, default=1)
-def api(secrets_file, account):
-  """A CLI to access the canvas REST API 
+@click.option("--server", default="http://localhost", help="Server URL. Defaults to http://localhost.")
+@click.option("--account", type=click.INT, default=1, help="Account ID. Defaults to 1.")
+def api(secrets_file, server, account):
+  """A CLI to access the Canvas REST API 
   
   SECRETS - A JSON file containing tokens and keys
   """
@@ -24,12 +25,12 @@ def api(secrets_file, account):
     print("Secrets file does not contain token. Please go to canvas profile settings and add an Approved Integration token. Put the token in your secrets file with the key 'token'.")
     exit(1)
   headers = {"Authorization":"Bearer " + secrets["token"]}
-  base_url = "http://localhost/api/v1/accounts/" + str(account) + "/"
+  base_url = server + "/api/v1/accounts/" + str(account) + "/"
   pass
 
 @api.group()
 def auth():
-  """Use the authentication providers API
+  """Use the Authentication Providers API
   """
   pass
 
@@ -46,12 +47,12 @@ def list():
 
 @auth.command()
 @click.argument("auth-type", type=click.Choice(["microsoft"]))
-@click.option("--position", type=click.INT, default=1)
-@click.option("--login_attribute", default="preferred_username")
+@click.option("--position", type=click.INT, default=1, help="Position for new auth provider. Defaults to 1.")
+@click.option("--login_attribute", default="preferred_username", help="Which login attribute to use. Defaults to preferred_username.")
 def add(auth_type, position, login_attribute):
   """Adds an authentication provider
 
-  AUTH_TYPE Which type of authentication to add (micosoft)
+  AUTH_TYPE Which type of authentication to add (microsoft)
   """
   print("Adding {} authentication at position {}...".format(auth_type, position))
   url = base_url + "authentication_providers"
@@ -63,11 +64,13 @@ def add(auth_type, position, login_attribute):
       print("Secrets file does not contain microsoft_application_secret")
       exit(1)
     data = {
-      application_id: secrets["microsoft_application_id"],
-      application_secret: secrets["microsoft_application_secret"],
-      login_attribute: login_attribute,
-      position: position
+      "application_id": secrets["microsoft_application_id"],
+      "application_secret": secrets["microsoft_application_secret"],
+      "auth_type": auth_type,
+      "login_attribute": login_attribute,
+      "position": position
     }
+    pp.pprint(data)
   response = requests.post(url, headers=headers, data=data).json()
   pp.pprint(response)
 

@@ -82,5 +82,8 @@ sudo cp /vagrant/config/nginx/sites-enabled/canvas.conf /etc/nginx/sites-enabled
 sudo service nginx restart
 
 ########################## Setup the local system #############################
-cp /vargrant/config/vimrc ~/.vimrc
-sudo pip3 install requests click
+cp /vagrant/config/vimrc ~/.vimrc
+sudo pip3 install click
+echo "Generating and saving token..."
+TOKEN=`bundle exec rails runner /vagrant/scripts/generate_access_token.rb`
+cat $SECRETS | sed -r "s/(\"token\":[ ]*)\"(.*)\"/\1\"$TOKEN\"/" > ~/secrets.json
