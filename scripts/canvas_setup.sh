@@ -11,10 +11,10 @@ LOWMEM=yes # tweeks for a low memory build environment
 if [ -f /vagrant/packages/apt-cache.tar ]; then # keeps us from having to download packages over and over
 	sudo tar xvf /vagrant/packages/apt-cache.tar -C /var/cache/apt/archives
 fi
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:brightbox/ruby-ng
-sudo add-apt-repository "deb https://dl.yarnpkg.com/debian/ stable main"
-sudo add-apt-repository "deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main"
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository -y ppa:brightbox/ruby-ng
+sudo add-apt-repository -y "deb https://dl.yarnpkg.com/debian/ stable main"
+sudo add-apt-repository -y "deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main"
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - # will automatically apt-get update
