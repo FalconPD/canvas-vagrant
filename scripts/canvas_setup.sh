@@ -31,6 +31,8 @@ createdb canvas_production
 
 ############################# Setup canvas ####################################
 SECRETS="$VAGRANT_BASE/config/secrets.json"
+export HOSTNAME=vagrant-ubuntu-trusty-64
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ssl-cert-snakeoil.pem
 export CANVAS_LMS_ADMIN_EMAIL=`cat $SECRETS | jq -r ".email"`
 export CANVAS_LMS_ADMIN_PASSWORD=`cat $SECRETS | jq -r ".password"`
 export CANVAS_LMS_STATS_COLLECTION="opt_in"
@@ -85,6 +87,10 @@ sudo service nginx restart
 ########################## Setup the local system #############################
 cp $VAGRANT_BASE/config/vimrc ~/.vimrc
 sudo pip3 install click
-echo "Generating and saving token..."
-TOKEN=`bundle exec rails runner $VAGRANT_BASE/scripts/generate_access_token.rb`
+echo "Setting up timezone, allowing sis imports, and generating token..."
+TOKEN=`bundle exec rails runner $VAGRANT_BASE/scripts/canvas_setup.rb`
 cat $SECRETS | sed -r "s/(\"token\":[ ]*)\"(.*)\"/\1\"$TOKEN\"/" > ~/secrets.json
+echo "Adding microsoft as auth provider..."
+$VAGRANT_BASE/scripts/canvas_cli.py --server https://$HOSTNAME $SECRETS auth add microsoft
+echo "Uploading SIS information..."
+$VAGRANT_BASE/scripts/canvas_cli.py --server https://$HOSTNAME $SECRETS sis import $VAGRANT_BASE/config/genesis/genesis_upload.zip 

@@ -9,7 +9,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 @click.group()
 @click.argument("secrets_file", type=click.File("r"), metavar="SECRETS")
-@click.option("--server", default="http://localhost", help="Server URL. Defaults to http://localhost.")
+@click.option("--server", default="https://localhost", help="Server URL. Defaults to https://localhost.")
 @click.option("--account", type=click.INT, default=1, help="Account ID. Defaults to 1.")
 def api(secrets_file, server, account):
   """A CLI to access the Canvas REST API 
@@ -70,8 +70,8 @@ def add(auth_type, position, login_attribute):
       "login_attribute": login_attribute,
       "position": position
     }
-    pp.pprint(data)
   response = requests.post(url, headers=headers, data=data).json()
+  print("Response...")
   pp.pprint(response)
 
 @api.group()
